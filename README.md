@@ -1,14 +1,16 @@
 # applied_ML_Faelles
 ## Guide til git
 
+### Krav til at git  
+Før  at git skal benyttes skal i have en terminal, der har git. Jeg mener at visual studio code allerede har git i terminalen.  
+Ellers git bash til windows benyttes (min personlige favorit) kan hentes her https://gitforwindows.org/ 
+Hvis I ikke vil benytte terminalen kan source tree benyttes (Andreas ved mere om dette) kan hentes her: https://www.sourcetreeapp.com/  
+
+
 ### Oprette repository fra bunden  
-
-´´´python  
-
+```bash  
 git clone https://github.com/Chris-Kramer/applied_ML_faelles.git  
-
-´´´  
-
+```
 
 ### Hente seneste version af repository
 Sørg for at du befinder dig i folderen "applied ML_faelles  
@@ -20,7 +22,6 @@ git pull origin main
 ### Tilføj nye redigeringer
 
 First skriv  
-
 ```bash  
 git add -A  
 ```
