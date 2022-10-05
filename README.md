@@ -26,14 +26,14 @@ git add -A
 ```
 
 Herefter  
-´´´python  
+```bash  
 git commit -m "skriv en besked her"  
-´´´  
+```
 
 Til sidst  
-´´´python  
+```bash  
 git push origin main  
-´´´  
+```
 ### BEMÆRK  
 Start gerne med at hente seneste version (pull) inden i laver redigeringer :D  
 
