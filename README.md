@@ -13,9 +13,9 @@ git clone https://github.com/Chris-Kramer/applied_ML_faelles.git
 ### Hente seneste version af repository
 Sørg for at du befinder dig i folderen "applied ML_faelles  
 
-´´´python  
+```bash  
 git pull origin main  
-´´´
+```
 
 ### Tilføj nye redigeringer
 
