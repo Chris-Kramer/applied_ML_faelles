@@ -21,9 +21,9 @@ git pull origin main
 
 First skriv  
 
-´´´python  
+```bash  
 git add -A  
-´´´  
+```
 
 Herefter  
 ´´´python  
