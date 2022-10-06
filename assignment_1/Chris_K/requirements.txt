@@ -3,3 +3,4 @@ numpy
 sklearn
 catboost
 ipywidgets
+jupyter
