@@ -133,13 +133,13 @@ def plot_hist(history):
 
     figure, axis = plt.subplots(2, 1) # display two plots in one graph
 
-    axis[0].plot(epochs, acc)
-    axis[0].plot(epochs, val_acc)
+    axis[0].plot(epochs, acc, label='Training accuracy')
+    axis[0].plot(epochs, val_acc, label='Validation accuracy')
     axis[0].set_title('Training and validation accuracy')
     plt.legend()
 
-    axis[1].plot(epochs, loss)
-    axis[1].plot(epochs, val_loss)
+    axis[1].plot(epochs, loss, label='Training loss')
+    axis[1].plot(epochs, val_loss, label='Validation loss')
     axis[1].set_title('Training and validation loss')
     plt.legend()
 
