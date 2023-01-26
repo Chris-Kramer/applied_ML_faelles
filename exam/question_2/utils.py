@@ -2,7 +2,12 @@
 ###########
 # Imports #
 ###########
+# Type hints
+from typing import Literal
+from typing import Optional
+
 import tensorflow as tf
+from keras import layers
 
 # data
 import pandas as pd
@@ -32,23 +37,13 @@ def _convert_sample(sample: pd.DataFrame,
     '''
     # Get data
     image, label = sample['image'], sample['label']  
-    
-    # Convert image to tensor
     image = tf.image.convert_image_dtype(image, tf.float32)
-    # Convert to grayscale if necessary
-    if gray_scale:
-        image = tf.image.rgb_to_grayscale(image)
-    # Resize image
-    if size is not None:
-        image = tf.image.resize(image, size)
-    # Transform to one-hot-encodign labels
     label = tf.one_hot(label, 2, dtype=tf.float32)
     return image, label
 
+
 def load_data(data_dir: str,
               perc: int = 5,
-              size: tuple[int, int] | None = None,
-              gray_scale: bool = False,
               batch_size: int = 32) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     '''
     Desc
@@ -62,7 +57,7 @@ def load_data(data_dir: str,
     
     Return
     -------
-    Tuple of numpay
+    Tuple of numparrays
     '''
     # Load data set
     train_df, val_df, test_df = tfds.load('patch_camelyon',split=[f'train[:{perc}%]', f'test[:{perc}%]', f'validation[:{perc}%]'],
@@ -70,14 +65,56 @@ def load_data(data_dir: str,
                                           download=False,
                                           shuffle_files=True)
     
-    # Convert _to numpy
-    train_df = train_df.map(_convert_sample).batch(batch_size)
-    val_df = val_df.map(_convert_sample).batch(batch_size)
-    test_df = test_df.map(_convert_sample).batch(batch_size)        
+    train_dataset = train_df.map(_convert_sample).batch(batch_size)
+    validation_dataset = val_df.map(_convert_sample).batch(batch_size)
+    test_dataset = test_df.map(_convert_sample).batch(batch_size)
+    return train_dataset, validation_dataset, test_dataset
 
+#####################
+# Data augmentation #
+#####################
+def augment_layer(size: Optional[int] = None,
+                 flip: Optional[Literal["horizontal_and_vertical", "horizontal", "vertical"]] = None,
+                 rotation: Optional[float] = None,
+                 zoom: Optional[tuple[float, float]] = None,
+                 contrast: Optional[float] = None,
+                 brightness: Optional[float] = None) -> layers:
+    """
+    Description
+    ------------
+    An augmentation layers for the images
+    If any parameters is left out, this particular augmentation will not be performed
     
-    return (train_df, val_df, test_df)
+    Parameters
+    ----------
+    - size (integer or None): Size of new image
+    - flip (str: 'horizontal_and_vertical', 'horizontal', 'vertical' or None): How to flip the image
+    - rotation (float or None): How many percentage degrees to rotate the image
+    - zoom (tuple(float, float) or None): How much to zoom the picture in height and width as a percentage
+    - contrast (float or None): How much contrast to add to each picture
+    - brightness (float or None): How much brightness to add between -1 (black) and 1 (white)
 
+    Returns
+    -------
+    - returns a keras layer
+    """
+    aug_layers = []
+    if size is not None:
+        aug_layers.append(layers.Resizing(size, size))
+    if flip is not None:
+        aug_layers.append(layers.RandomFlip(flip))
+    if rotation is not None:
+        aug_layers.append(layers.RandomRotation(rotation))
+    if zoom is not None:
+        aug_layers.append(layers.RandomZoom(rotation))
+    if contrast is not None:
+        aug_layers.append(layers.RandomContrast(contrast))
+    if brightness is not None:
+        aug_layers.append(layers.RandomBrightness(rotation))
+    return tf.keras.Sequential(aug_layers)
+  
+  
+   
 ############
 # Plotting #
 ############
