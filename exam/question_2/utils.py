@@ -137,7 +137,7 @@ def plot_hist(history):
     plt.subplot(1,2,1)
     plt.plot(epochs, acc, 'r--', label='Training accuracy')
     plt.plot(epochs, val_acc, 'r', label='Validation accuracy')
-    plt.title('Training and validation accuracy')
+    plt.title('Model accuracy')
     plt.xlabel('Epochs')
     plt.ylabel('Accuracy')
     plt.legend()
@@ -146,7 +146,7 @@ def plot_hist(history):
     plt.subplot(1,2,2)
     plt.plot(epochs, loss, 'r--', label='Training loss') # 'bo' is for blue dot, 'b' is for solid blue line
     plt.plot(epochs, val_loss, 'r', label='Validation loss')
-    plt.title('Training and validation loss')
+    plt.title('Model loss')
     plt.xlabel('Epochs')
     plt.ylabel('Loss')
     plt.legend()
