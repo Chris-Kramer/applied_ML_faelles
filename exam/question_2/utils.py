@@ -151,7 +151,6 @@ def plot_hist(history):
     plt.ylabel('Loss')
     plt.legend()
 
-
     plt.show()
 
 
