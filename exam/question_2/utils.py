@@ -133,17 +133,24 @@ def plot_hist(history):
     val_loss = history.history['val_loss']
     epochs = range(1, len(acc) + 1)
 
-    figure, axis = plt.subplots(2, 1) # display two plots in one graph
-
-    axis[0].plot(epochs, acc, label='Training accuracy')
-    axis[0].plot(epochs, val_acc, label='Validation accuracy')
-    axis[0].set_title('Training and validation accuracy')
+    # Plot 1
+    plt.subplot(1,2,1)
+    plt.plot(epochs, acc, 'r--', label='Training accuracy')
+    plt.plot(epochs, val_acc, 'r', label='Validation accuracy')
+    plt.title('Training and validation accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
     plt.legend()
 
-    axis[1].plot(epochs, loss, label='Training loss')
-    axis[1].plot(epochs, val_loss, label='Validation loss')
-    axis[1].set_title('Training and validation loss')
+    # Plot 2
+    plt.subplot(1,2,2)
+    plt.plot(epochs, loss, 'r--', label='Training loss') # 'bo' is for blue dot, 'b' is for solid blue line
+    plt.plot(epochs, val_loss, 'r', label='Validation loss')
+    plt.title('Training and validation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
     plt.legend()
+
 
     plt.show()
 
