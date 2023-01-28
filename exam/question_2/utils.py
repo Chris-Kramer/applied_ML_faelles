@@ -60,15 +60,16 @@ def load_data(data_dir: str,
     Tuple of numparrays
     '''
     # Load data set
-    train_df, val_df, test_df = tfds.load('patch_camelyon',split=[f'train[:{perc}%]', f'test[:{perc}%]', f'validation[:{perc}%]'],
+    tf.random.set_seed(42)
+    train_df, test_df, val_df = tfds.load('patch_camelyon',split=[f'train[:{perc}%]', f'test[:{perc}%]', f'validation[:{perc}%]'],
                                           data_dir = data_dir,
                                           download=False,
                                           shuffle_files=True)
     
     train_dataset = train_df.map(_convert_sample).batch(batch_size)
-    validation_dataset = val_df.map(_convert_sample).batch(batch_size)
     test_dataset = test_df.map(_convert_sample).batch(batch_size)
-    return train_dataset, validation_dataset, test_dataset
+    validation_dataset = val_df.map(_convert_sample).batch(batch_size)
+    return train_dataset, test_dataset, validation_dataset
 
 #####################
 # Data augmentation #
@@ -123,6 +124,7 @@ def plot_hist(history):
     Desc
     -----
     Plots the accuracy and loss for training and validation data
+    Stacks them on
     '''
     
     acc = history.history['accuracy']
@@ -144,4 +146,44 @@ def plot_hist(history):
     plt.legend()
 
     plt.show()
-    
+
+
+def plot_hist_sideways(history):
+    """
+    Plots loss and accuracy side by side
+    """
+    history_dict = history.history
+
+
+    # Plot 1 values
+    loss_values = history_dict['loss']
+    val_loss_values = history_dict['val_loss']
+
+
+    # Plot 2 values
+    acc_values = history_dict['accuracy']
+    val_values = history_dict['val_accuracy']
+
+    epochs = range(1, len(loss_values) + 1)
+
+
+    # Plot 1
+    plt.subplot(1,2,1)
+    plt.plot(epochs, loss_values, 'r', label='Training loss') # 'bo' is for blue dot, 'b' is for solid blue line
+    plt.plot(epochs, val_loss_values, 'b', label='Validation loss')
+    plt.title('Training and validation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+
+
+    # Plot 2
+    plt.subplot(1,2,2)
+    plt.plot(epochs, acc_values, 'r', label='Training accuracy')
+    plt.plot(epochs, val_values, 'b', label='Validation accuracy')
+    plt.title('Training and validation accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.show()
