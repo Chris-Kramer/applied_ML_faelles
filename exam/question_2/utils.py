@@ -5,8 +5,10 @@
 # Type hints
 from typing import Literal
 from typing import Optional
+from typing import Callable
 
 import tensorflow as tf
+import keras
 from keras import layers
 
 # data
@@ -101,21 +103,43 @@ def augment_layer(size: Optional[int] = None,
     """
     aug_layers = []
     if size is not None:
-        aug_layers.append(layers.Resizing(size, size))
+        aug_layers.append(layers.Resizing(height = size, width = size))
     if flip is not None:
-        aug_layers.append(layers.RandomFlip(flip))
+        aug_layers.append(layers.RandomFlip(mode = flip))
     if rotation is not None:
-        aug_layers.append(layers.RandomRotation(rotation))
+        aug_layers.append(layers.RandomRotation(factor = rotation))
     if zoom is not None:
-        aug_layers.append(layers.RandomZoom(rotation))
+        aug_layers.append(layers.RandomZoom(height_factor = zoom, width_factor = zoom))
     if contrast is not None:
-        aug_layers.append(layers.RandomContrast(contrast))
+        aug_layers.append(layers.RandomContrast(factor = contrast))
     if brightness is not None:
-        aug_layers.append(layers.RandomBrightness(rotation))
+        aug_layers.append(layers.RandomBrightness(factor = brightness))
     return tf.keras.Sequential(aug_layers)
-  
-  
-   
+
+ ######################
+ # Feature extraction #
+ ######################
+def get_features_and_labels(dataset: tf.data.Dataset, base_model: tf.keras.models.Model, preprocess_func: Callable) -> tuple[np.ndarray, np.ndarray]:
+    """
+    extracts features and labels from an tensorflow dataset
+    """
+    all_features = []
+    all_labels = []
+    for images, labels in dataset:
+        preprocessed_images = preprocess_func(images)
+        features = base_model.predict(preprocessed_images)
+        all_features.append(features)
+        all_labels.append(labels)
+    return np.concatenate(all_features), np.concatenate(all_labels)
+
+def preprocess_data(dataset, preprocess_func: Callable) -> tuple[np.ndarray, np.ndarray]:
+    all_x = []
+    all_y = []
+    for images, labels in dataset:
+        preprocessed_images = preprocess_func(images)
+        all_x.append(preprocessed_images)
+        all_y.append(labels)
+    return np.concatenate(all_x), np.concatenate(all_y)
 ############
 # Plotting #
 ############
