@@ -1,3 +1,6 @@
 pandas
 numpy
 sklearn
+matplotlib
+tensorflow
+tensorflow_datasets
