@@ -4,3 +4,5 @@ sklearn
 matplotlib
 tensorflow
 tensorflow_datasets
+pydot
+graphviz
