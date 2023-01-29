@@ -5,8 +5,10 @@
 # Type hints
 from typing import Literal
 from typing import Optional
+from typing import Callable
 
 import tensorflow as tf
+import keras
 from keras import layers
 
 # data
@@ -60,15 +62,16 @@ def load_data(data_dir: str,
     Tuple of numparrays
     '''
     # Load data set
-    train_df, val_df, test_df = tfds.load('patch_camelyon',split=[f'train[:{perc}%]', f'test[:{perc}%]', f'validation[:{perc}%]'],
+    tf.random.set_seed(42)
+    train_df, test_df, val_df = tfds.load('patch_camelyon',split=[f'train[:{perc}%]', f'test[:{perc}%]', f'validation[:{perc}%]'],
                                           data_dir = data_dir,
                                           download=False,
                                           shuffle_files=True)
     
     train_dataset = train_df.map(_convert_sample).batch(batch_size)
-    validation_dataset = val_df.map(_convert_sample).batch(batch_size)
     test_dataset = test_df.map(_convert_sample).batch(batch_size)
-    return train_dataset, validation_dataset, test_dataset
+    validation_dataset = val_df.map(_convert_sample).batch(batch_size)
+    return train_dataset, test_dataset, validation_dataset
 
 #####################
 # Data augmentation #
@@ -100,21 +103,43 @@ def augment_layer(size: Optional[int] = None,
     """
     aug_layers = []
     if size is not None:
-        aug_layers.append(layers.Resizing(size, size))
+        aug_layers.append(layers.Resizing(height = size, width = size))
     if flip is not None:
-        aug_layers.append(layers.RandomFlip(flip))
+        aug_layers.append(layers.RandomFlip(mode = flip))
     if rotation is not None:
-        aug_layers.append(layers.RandomRotation(rotation))
+        aug_layers.append(layers.RandomRotation(factor = rotation))
     if zoom is not None:
-        aug_layers.append(layers.RandomZoom(rotation))
+        aug_layers.append(layers.RandomZoom(height_factor = zoom, width_factor = zoom))
     if contrast is not None:
-        aug_layers.append(layers.RandomContrast(contrast))
+        aug_layers.append(layers.RandomContrast(factor = contrast))
     if brightness is not None:
-        aug_layers.append(layers.RandomBrightness(rotation))
+        aug_layers.append(layers.RandomBrightness(factor = brightness))
     return tf.keras.Sequential(aug_layers)
-  
-  
-   
+
+ ######################
+ # Feature extraction #
+ ######################
+def get_features_and_labels(dataset: tf.data.Dataset, base_model: tf.keras.models.Model, preprocess_func: Callable) -> tuple[np.ndarray, np.ndarray]:
+    """
+    extracts features and labels from an tensorflow dataset
+    """
+    all_features = []
+    all_labels = []
+    for images, labels in dataset:
+        preprocessed_images = preprocess_func(images)
+        features = base_model.predict(preprocessed_images)
+        all_features.append(features)
+        all_labels.append(labels)
+    return np.concatenate(all_features), np.concatenate(all_labels)
+
+def preprocess_data(dataset, preprocess_func: Callable) -> tuple[np.ndarray, np.ndarray]:
+    all_x = []
+    all_y = []
+    for images, labels in dataset:
+        preprocessed_images = preprocess_func(images)
+        all_x.append(preprocessed_images)
+        all_y.append(labels)
+    return np.concatenate(all_x), np.concatenate(all_y)
 ############
 # Plotting #
 ############
@@ -123,6 +148,7 @@ def plot_hist(history):
     Desc
     -----
     Plots the accuracy and loss for training and validation data
+    Stacks them on
     '''
     
     acc = history.history['accuracy']
@@ -131,17 +157,63 @@ def plot_hist(history):
     val_loss = history.history['val_loss']
     epochs = range(1, len(acc) + 1)
 
-    figure, axis = plt.subplots(2, 1) # display two plots in one graph
-
-    axis[0].plot(epochs, acc)
-    axis[0].plot(epochs, val_acc)
-    axis[0].set_title('Training and validation accuracy')
+    # Plot 1
+    plt.subplot(1,2,1)
+    plt.plot(epochs, acc, 'r--', label='Training accuracy')
+    plt.plot(epochs, val_acc, 'r', label='Validation accuracy')
+    plt.title('Model accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
     plt.legend()
 
-    axis[1].plot(epochs, loss)
-    axis[1].plot(epochs, val_loss)
-    axis[1].set_title('Training and validation loss')
+    # Plot 2
+    plt.subplot(1,2,2)
+    plt.plot(epochs, loss, 'r--', label='Training loss') # 'bo' is for blue dot, 'b' is for solid blue line
+    plt.plot(epochs, val_loss, 'r', label='Validation loss')
+    plt.title('Model loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
     plt.legend()
 
     plt.show()
-    
+
+
+def plot_hist_sideways(history):
+    """
+    Plots loss and accuracy side by side
+    """
+    history_dict = history.history
+
+
+    # Plot 1 values
+    loss_values = history_dict['loss']
+    val_loss_values = history_dict['val_loss']
+
+
+    # Plot 2 values
+    acc_values = history_dict['accuracy']
+    val_values = history_dict['val_accuracy']
+
+    epochs = range(1, len(loss_values) + 1)
+
+
+    # Plot 1
+    plt.subplot(1,2,1)
+    plt.plot(epochs, loss_values, 'r', label='Training loss') # 'bo' is for blue dot, 'b' is for solid blue line
+    plt.plot(epochs, val_loss_values, 'b', label='Validation loss')
+    plt.title('Training and validation loss')
+    plt.xlabel('Epochs')
+    plt.ylabel('Loss')
+    plt.legend()
+
+
+    # Plot 2
+    plt.subplot(1,2,2)
+    plt.plot(epochs, acc_values, 'r', label='Training accuracy')
+    plt.plot(epochs, val_values, 'b', label='Validation accuracy')
+    plt.title('Training and validation accuracy')
+    plt.xlabel('Epochs')
+    plt.ylabel('Accuracy')
+    plt.legend()
+
+    plt.show()
