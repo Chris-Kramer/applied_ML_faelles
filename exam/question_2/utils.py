@@ -158,23 +158,19 @@ def plot_hist(history):
     epochs = range(1, len(acc) + 1)
 
     # Plot 1
-    plt.subplot(1,2,1)
-    plt.plot(epochs, acc, 'r--', label='Training accuracy')
-    plt.plot(epochs, val_acc, 'r', label='Validation accuracy')
-    plt.title('Model accuracy')
-    plt.xlabel('Epochs')
-    plt.ylabel('Accuracy')
-    plt.legend()
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 4))
+    fig.tight_layout()
 
-    # Plot 2
-    plt.subplot(1,2,2)
-    plt.plot(epochs, loss, 'r--', label='Training loss') # 'bo' is for blue dot, 'b' is for solid blue line
-    plt.plot(epochs, val_loss, 'r', label='Validation loss')
-    plt.title('Model loss')
-    plt.xlabel('Epochs')
-    plt.ylabel('Loss')
-    plt.legend()
+    ax1.plot(epochs, acc, 'r--')
+    ax1.plot(epochs, val_acc, 'r')
+    ax1.set_title('Model accuracy')
 
+    ax2.plot(epochs, loss, 'r--', label='Training')
+    ax2.plot(epochs, val_loss, 'r', label='Validation')
+    ax2.set_title('Model loss')
+
+    fig.legend()
+    
     plt.show()
 
 
