@@ -9,7 +9,7 @@ class Localization(tf.keras.layers.Layer):
         self.pool2 = tf.keras.layers.MaxPool2D()
         self.conv2 = tf.keras.layers.Conv2D(20, [5, 5], activation='relu')
         self.flatten = tf.keras.layers.Flatten()
-        self.fc1 = tf.keras.layers.Dense(20, activation='relu')
+        self.fc1 = tf.keras.layers.Dense(20, activation='sigmoid')
         self.fc2 = tf.keras.layers.Dense(6, activation=None, bias_initializer=tf.keras.initializers.constant([1.0, 0.0, 0.0, 0.0, 1.0, 0.0]), kernel_initializer='zeros')
 
     def build(self, input_shape):
