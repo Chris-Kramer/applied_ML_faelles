@@ -62,7 +62,7 @@ def load_data(data_dir: str,
     Tuple of numparrays
     '''
     # Load data set
-    tf.random.set_seed(42)
+    tf.random.set_seed(88)
     train_df, test_df, val_df = tfds.load('patch_camelyon',split=[f'train[:{perc}%]', f'test[:{perc}%]', f'validation[:{perc}%]'],
                                           data_dir = data_dir,
                                           download=False,
